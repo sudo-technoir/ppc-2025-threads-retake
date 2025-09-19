@@ -13,7 +13,7 @@ using shkurinskaya_e_convex_hull_components_seq::ConvexHullSequential;
 using shkurinskaya_e_convex_hull_components_seq::Point;
 
 namespace {
-static std::vector<Point> RunHull(const std::vector<uint8_t>& img, int W, int H) {
+std::vector<Point> RunHull(const std::vector<uint8_t>& img, int W, int H) {
   std::vector<Point> out(static_cast<size_t>(W) * static_cast<size_t>(H));
 
   auto td = std::make_shared<ppc::core::TaskData>();
@@ -24,19 +24,19 @@ static std::vector<Point> RunHull(const std::vector<uint8_t>& img, int W, int H)
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&H)));
   td->inputs_count.emplace_back(1);
   td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  td->outputs_count.emplace_back(static_cast<unsigned int>(out.size()));
+  td->outputs_count.emplace_back(static_cast<unsigned int>(out.size()));  // capacity
 
   auto task = std::make_shared<ConvexHullSequential>(td);
 
-  EXPECT_TRUE(task->ValidationImpl());
+  ASSERT_TRUE(task->ValidationImpl());
   ASSERT_TRUE(task->PreProcessingImpl());
   ASSERT_TRUE(task->RunImpl());
   ASSERT_TRUE(task->PostProcessingImpl());
 
-  const unsigned int out_len = td->outputs_count[0];
-  EXPECT_LE(out_len, out.size());
+  const unsigned int n = td->outputs_count[0];
+  EXPECT_LE(n, out.size());
 
-  return std::vector<Point>(out.begin(), out.begin() + out_len);
+  return std::vector<Point>(out.begin(), out.begin() + n);
 }
 }  // namespace
 
@@ -76,6 +76,5 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_perfect_diagonal_colline
 
   auto is_inner_diag = [&](const Point& p) { return p.x == p.y && p.x > 0 && p.x < W - 1; };
   EXPECT_TRUE(std::none_of(hull.begin(), hull.end(), is_inner_diag));
-
   EXPECT_EQ(hull.size(), 2u);
 }
