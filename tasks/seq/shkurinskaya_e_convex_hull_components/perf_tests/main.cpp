@@ -1,4 +1,4 @@
-// perf_tests/main.cpp 
+// perf_tests/main.cpp
 #include <gtest/gtest.h>
 
 #include <chrono>
