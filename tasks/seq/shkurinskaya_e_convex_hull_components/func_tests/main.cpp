@@ -28,10 +28,24 @@ std::vector<Point> RunHull(const std::vector<uint8_t>& img, int w, int h) {
   td->outputs_count.emplace_back(static_cast<unsigned int>(out.size()));
 
   auto task = std::make_shared<ConvexHullSequential>(td);
-  ASSERT_TRUE(task->ValidationImpl());
-  ASSERT_TRUE(task->PreProcessingImpl());
-  ASSERT_TRUE(task->RunImpl());
-  ASSERT_TRUE(task->PostProcessingImpl());
+
+  bool ok = true;
+
+  ok = task->ValidationImpl();
+  EXPECT_TRUE(ok) << "ValidationImpl() failed";
+  if (!ok) return {};
+
+  ok = task->PreProcessingImpl();
+  EXPECT_TRUE(ok) << "PreProcessingImpl() failed";
+  if (!ok) return {};
+
+  ok = task->RunImpl();
+  EXPECT_TRUE(ok) << "RunImpl() failed";
+  if (!ok) return {};
+
+  ok = task->PostProcessingImpl();
+  EXPECT_TRUE(ok) << "PostProcessingImpl() failed";
+  if (!ok) return {};
 
   const unsigned int n = td->outputs_count[0];
   EXPECT_LE(n, out.size());
