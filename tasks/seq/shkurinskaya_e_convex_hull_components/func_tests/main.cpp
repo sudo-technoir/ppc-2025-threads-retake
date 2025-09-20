@@ -72,8 +72,7 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_perfect_diagonal_colline
   std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 0);
 
   for (int i = 0; i < std::min(w, h); ++i) {
-    const std::size_t idx =
-        static_cast<std::size_t>(i) * static_cast<std::size_t>(w) + static_cast<std::size_t>(i);
+    const std::size_t idx = static_cast<std::size_t>(i) * static_cast<std::size_t>(w) + static_cast<std::size_t>(i);
     img[idx] = 1;
   }
 
@@ -85,9 +84,7 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_perfect_diagonal_colline
   EXPECT_TRUE(contains({0, 0}));
   EXPECT_TRUE(contains({w - 1, h - 1}));
 
-  auto is_inner_diag = [&](const Point& p) {
-    return p.x == p.y && p.x > 0 && p.x < (w - 1);
-  };
+  auto is_inner_diag = [&](const Point& p) { return p.x == p.y && p.x > 0 && p.x < (w - 1); };
   EXPECT_TRUE(std::ranges::none_of(hull, is_inner_diag));
   EXPECT_EQ(hull.size(), 2U);
 }
