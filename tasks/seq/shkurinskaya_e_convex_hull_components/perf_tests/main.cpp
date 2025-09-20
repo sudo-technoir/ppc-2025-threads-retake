@@ -16,20 +16,19 @@ using shkurinskaya_e_convex_hull_components_seq::Point;
 namespace {
 constexpr int kW = 4096;
 constexpr int kH = 4096;
+
 const std::vector<uint8_t>& SharedImage() {
   static std::vector<uint8_t> img;
   static bool inited = false;
   if (!inited) {
-    img.assign(static_cast<size_t>(kW) * static_cast<size_t>(kH), 0);
-    // верх/низ
+    img.assign(static_cast<std::size_t>(kW) * static_cast<std::size_t>(kH), 0);
     for (int x = 0; x < kW; ++x) {
-      img[static_cast<size_t>(0) * kW + x] = 1;
-      img[static_cast<size_t>(kH - 1) * kW + x] = 1;
+      img[static_cast<std::size_t>(0) * kW + x] = 1;
+      img[static_cast<std::size_t>(kH - 1) * kW + x] = 1;
     }
-    // лево/право
     for (int y = 0; y < kH; ++y) {
-      img[static_cast<size_t>(y) * kW + 0] = 1;
-      img[static_cast<size_t>(y) * kW + (kW - 1)] = 1;
+      img[static_cast<std::size_t>(y) * kW + 0] = 1;
+      img[static_cast<std::size_t>(y) * kW + (kW - 1)] = 1;
     }
     inited = true;
   }
@@ -74,6 +73,7 @@ bool HasPoint(const Point* out, unsigned n, Point q) {
 TEST(shkurinskaya_e_convex_hull_components_seq, perf_pipeline_shared_frame) {
   const auto& img = SharedImage();
   std::vector<Point> out(img.size());
+
   auto td = MakeTaskData(img, kW, kH, out);
   auto task = std::make_shared<ConvexHullSequential>(td);
 
@@ -86,7 +86,7 @@ TEST(shkurinskaya_e_convex_hull_components_seq, perf_pipeline_shared_frame) {
 
   const unsigned n = td->outputs_count[0];
   ASSERT_LE(n, out.size());
-  EXPECT_GE(n, 4u);
+  EXPECT_GE(n, 4U);
 
   EXPECT_TRUE(HasPoint(out.data(), n, Point{0, 0}));
   EXPECT_TRUE(HasPoint(out.data(), n, Point{kW - 1, 0}));
@@ -113,7 +113,7 @@ TEST(shkurinskaya_e_convex_hull_components_seq, perf_taskrun_shared_frame) {
 
   const unsigned n = td->outputs_count[0];
   ASSERT_LE(n, out.size());
-  EXPECT_GE(n, 4u);
+  EXPECT_GE(n, 4U);
   EXPECT_TRUE(HasPoint(out.data(), n, Point{0, 0}));
   EXPECT_TRUE(HasPoint(out.data(), n, Point{kW - 1, kH - 1}));
 }
