@@ -1,9 +1,9 @@
-#include "seq/shkurinskaya_e_convex_hull_components/include/ops_seq.hpp"
-
 #include <algorithm>
 #include <cstddef>
 #include <utility>
 #include <vector>
+
+#include "seq/shkurinskaya_e_convex_hull_components/include/ops_seq.hpp"
 
 using namespace shkurinskaya_e_convex_hull_components_seq;
 
@@ -17,14 +17,12 @@ inline long long TwiceOrientedArea(const Point& a, const Point& b, const Point& 
   return (abx * acy) - (aby * acx);
 }
 
-inline bool LexiLess(const Point& a, const Point& b) noexcept {
-  return (a.x < b.x) || (a.x == b.x && a.y < b.y);
-}
+inline bool LexiLess(const Point& a, const Point& b) noexcept { return (a.x < b.x) || (a.x == b.x && a.y < b.y); }
 
 inline void DedupSortedInPlace(std::vector<Point>& pts) {
-  pts.erase(std::unique(pts.begin(), pts.end(),
-                        [](const Point& l, const Point& r) { return l.x == r.x && l.y == r.y; }),
-            pts.end());
+  pts.erase(
+      std::unique(pts.begin(), pts.end(), [](const Point& l, const Point& r) { return l.x == r.x && l.y == r.y; }),
+      pts.end());
 }
 
 inline void AppendWithLeftTurn(std::vector<Point>& chain, const Point& nxt) {
