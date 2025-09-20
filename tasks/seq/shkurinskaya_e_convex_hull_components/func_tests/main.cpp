@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -13,80 +14,80 @@ using shkurinskaya_e_convex_hull_components_seq::ConvexHullSequential;
 using shkurinskaya_e_convex_hull_components_seq::Point;
 
 namespace {
-std::vector<Point> RunHull(const std::vector<uint8_t>& img, int W, int H) {
-  std::vector<Point> out(static_cast<size_t>(W) * static_cast<size_t>(H));
+std::vector<Point> RunHull(const std::vector<uint8_t>& img, int w, int h) {
+  std::vector<Point> out(static_cast<std::size_t>(w) * static_cast<std::size_t>(h));
 
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<uint8_t*>(img.data())));
   td->inputs_count.emplace_back(static_cast<unsigned int>(img.size()));
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&W)));
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&w)));
   td->inputs_count.emplace_back(1);
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&H)));
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&h)));
   td->inputs_count.emplace_back(1);
   td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   td->outputs_count.emplace_back(static_cast<unsigned int>(out.size()));
 
   auto task = std::make_shared<ConvexHullSequential>(td);
-
-  if (!task->ValidationImpl()) {
-    ADD_FAILURE() << "ValidationImpl() returned false";
-    return {};
-  }
-  if (!task->PreProcessingImpl()) {
-    ADD_FAILURE() << "PreProcessingImpl() returned false";
-    return {};
-  }
-  if (!task->RunImpl()) {
-    ADD_FAILURE() << "RunImpl() returned false";
-    return {};
-  }
-  if (!task->PostProcessingImpl()) {
-    ADD_FAILURE() << "PostProcessingImpl() returned false";
-    return {};
-  }
+  ASSERT_TRUE(task->ValidationImpl());
+  ASSERT_TRUE(task->PreProcessingImpl());
+  ASSERT_TRUE(task->RunImpl());
+  ASSERT_TRUE(task->PostProcessingImpl());
 
   const unsigned int n = td->outputs_count[0];
   EXPECT_LE(n, out.size());
-
   return std::vector<Point>(out.begin(), out.begin() + n);
 }
 }  // namespace
 
 TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_solid_square_5x5) {
-  const int W = 5, H = 5;
-  std::vector<uint8_t> img(static_cast<size_t>(W) * static_cast<size_t>(H), 0);
-  auto set1 = [&](int x, int y) { img[static_cast<size_t>(y) * W + x] = 1; };
-  for (int y = 1; y <= 3; ++y)
-    for (int x = 1; x <= 3; ++x) set1(x, y);
+  const int w = 5;
+  const int h = 5;
+  std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 0);
 
-  auto hull = RunHull(img, W, H);
+  auto set1 = [&](int x, int y) {
+    const std::size_t idx = static_cast<std::size_t>(y) * static_cast<std::size_t>(w) + static_cast<std::size_t>(x);
+    img[idx] = 1;
+  };
+  for (int y = 1; y <= 3; ++y) {
+    for (int x = 1; x <= 3; ++x) {
+      set1(x, y);
+    }
+  }
+
+  auto hull = RunHull(img, w, h);
 
   auto contains = [&](Point q) {
-    return std::find_if(hull.begin(), hull.end(), [&](const Point& p) { return p.x == q.x && p.y == q.y; }) !=
-           hull.end();
+    return std::ranges::find_if(hull, [&](const Point& p) { return p.x == q.x && p.y == q.y; }) != hull.end();
   };
   EXPECT_TRUE(contains({1, 1}));
   EXPECT_TRUE(contains({3, 1}));
   EXPECT_TRUE(contains({3, 3}));
   EXPECT_TRUE(contains({1, 3}));
-  EXPECT_EQ(hull.size(), 4u);
+  EXPECT_EQ(hull.size(), 4U);
 }
 
 TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_perfect_diagonal_collinear) {
-  const int W = 7, H = 7;
-  std::vector<uint8_t> img(static_cast<size_t>(W) * static_cast<size_t>(H), 0);
-  for (int i = 0; i < std::min(W, H); ++i) img[static_cast<size_t>(i) * W + i] = 1;
+  const int w = 7;
+  const int h = 7;
+  std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 0);
 
-  auto hull = RunHull(img, W, H);
+  for (int i = 0; i < std::min(w, h); ++i) {
+    const std::size_t idx =
+        static_cast<std::size_t>(i) * static_cast<std::size_t>(w) + static_cast<std::size_t>(i);
+    img[idx] = 1;
+  }
+
+  auto hull = RunHull(img, w, h);
 
   auto contains = [&](Point q) {
-    return std::find_if(hull.begin(), hull.end(), [&](const Point& p) { return p.x == q.x && p.y == q.y; }) !=
-           hull.end();
+    return std::ranges::find_if(hull, [&](const Point& p) { return p.x == q.x && p.y == q.y; }) != hull.end();
   };
   EXPECT_TRUE(contains({0, 0}));
-  EXPECT_TRUE(contains({W - 1, H - 1}));
+  EXPECT_TRUE(contains({w - 1, h - 1}));
 
-  auto is_inner_diag = [&](const Point& p) { return p.x == p.y && p.x > 0 && p.x < W - 1; };
-  EXPECT_TRUE(std::none_of(hull.begin(), hull.end(), is_inner_diag));
-  EXPECT_EQ(hull.size(), 2u);
+  auto is_inner_diag = [&](const Point& p) {
+    return p.x == p.y && p.x > 0 && p.x < (w - 1);
+  };
+  EXPECT_TRUE(std::ranges::none_of(hull, is_inner_diag));
+  EXPECT_EQ(hull.size(), 2U);
 }
