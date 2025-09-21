@@ -112,19 +112,17 @@ TEST(shkurinskaya_e_convex_hull_components_seq, perf_taskrun_shared_frame) {
   std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 0);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
-      const std::size_t idx =
-          (static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + static_cast<std::size_t>(x);
+      const std::size_t idx = (static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + static_cast<std::size_t>(x);
       img[idx] = static_cast<uint8_t>(((x ^ y) & 1) == 0);
     }
   }
 
   std::vector<Point> out(1000);
-  ImgSpec spec{ .w = w, .h = h };
+  ImgSpec spec{.w = w, .h = h};
 
   auto td = MakeTaskData(img, spec, out);
   auto task = std::make_shared<ConvexHullSequential>(td);
 
-  // по шаблону: валидация и препроцесс до замера
   ASSERT_TRUE(task->ValidationImpl());
   ASSERT_TRUE(task->PreProcessingImpl());
 
