@@ -69,8 +69,7 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_solid_square_5x5) {
   auto hull = RunHull(img, w, h);
 
   const auto contains = [&](Point q) {
-    return std::find_if(hull.begin(), hull.end(), [&](const Point& p) { return p.x == q.x && p.y == q.y; }) !=
-           hull.end();
+    return std::ranges::find_if(hull, [&](const Point& p) { return p.x == q.x && p.y == q.y; }) != hull.end();
   };
   EXPECT_TRUE(contains({1, 1}));
   EXPECT_TRUE(contains({3, 1}));
@@ -91,13 +90,12 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_perfect_diagonal_colline
   auto hull = RunHull(img, w, h);
 
   const auto contains = [&](Point q) {
-    return std::find_if(hull.begin(), hull.end(), [&](const Point& p) { return p.x == q.x && p.y == q.y; }) !=
-           hull.end();
+    return std::ranges::find_if(hull, [&](const Point& p) { return p.x == q.x && p.y == q.y; }) != hull.end();
   };
   EXPECT_TRUE(contains({0, 0}));
   EXPECT_TRUE(contains({w - 1, h - 1}));
 
   const auto is_inner_diag = [&](const Point& p) { return p.x == p.y && p.x > 0 && p.x < (w - 1); };
-  EXPECT_TRUE(std::none_of(hull.begin(), hull.end(), is_inner_diag));
+  EXPECT_TRUE(std::ranges::none_of(hull, is_inner_diag));
   EXPECT_EQ(hull.size(), 2U);
 }
