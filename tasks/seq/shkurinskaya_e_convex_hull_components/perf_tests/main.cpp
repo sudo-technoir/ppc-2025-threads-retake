@@ -84,7 +84,7 @@ bool HasPoint(const Point* out, unsigned n, Point q) {
 TEST(shkurinskaya_e_convex_hull_components_seq, perf_pipeline_shared_frame) {
   const auto& img = SharedImage();
   std::vector<Point> out(img.size());
-  ImgSpec spec{kW, kH};
+  ImgSpec spec{ .w = kW, .h = kH };
 
   auto td = MakeTaskData(img, spec, out);
   auto task = std::make_shared<ConvexHullSequential>(td);
@@ -109,7 +109,7 @@ TEST(shkurinskaya_e_convex_hull_components_seq, perf_pipeline_shared_frame) {
 TEST(shkurinskaya_e_convex_hull_components_seq, perf_taskrun_shared_frame) {
   const auto& img = SharedImage();
   std::vector<Point> out(img.size());
-  ImgSpec spec{kW, kH};
+  ImgSpec spec{ .w = kW, .h = kH };
 
   auto td = MakeTaskData(img, spec, out);
   auto task = std::make_shared<ConvexHullSequential>(td);
