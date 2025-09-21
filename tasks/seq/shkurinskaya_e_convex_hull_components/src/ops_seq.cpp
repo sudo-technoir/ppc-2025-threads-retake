@@ -167,6 +167,4 @@ bool ConvexHullSequential::PostProcessingImpl() {
   return true;
 }
 
-ConvexHullSequential::ConvexHullSequential(ppc::core::TaskDataPtr task_data) : ppc::core::Task(task_data) {}
-
 }  // namespace shkurinskaya_e_convex_hull_components_seq
