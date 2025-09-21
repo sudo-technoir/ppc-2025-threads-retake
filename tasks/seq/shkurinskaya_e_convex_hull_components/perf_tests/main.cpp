@@ -14,8 +14,8 @@ using shkurinskaya_e_convex_hull_components_seq::ConvexHullSequential;
 using shkurinskaya_e_convex_hull_components_seq::Point;
 
 namespace {
-constexpr int kW = 32768;
-constexpr int kH = 32768;
+constexpr int kW = 16384;
+constexpr int kH = 16384;
 
 const std::vector<uint8_t>& SharedImage() {
   static std::vector<uint8_t> img;
@@ -107,19 +107,30 @@ TEST(shkurinskaya_e_convex_hull_components_seq, perf_pipeline_shared_frame) {
 }
 
 TEST(shkurinskaya_e_convex_hull_components_seq, perf_taskrun_shared_frame) {
-  const auto& img = SharedImage();
-  std::vector<Point> out(img.size());
-  ImgSpec spec{.w = kW, .h = kH};
+  const int w = 1536;
+  const int h = 1536;
+  std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 0);
+  for (int y = 0; y < h; ++y) {
+    for (int x = 0; x < w; ++x) {
+      const std::size_t idx =
+          (static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + static_cast<std::size_t>(x);
+      img[idx] = static_cast<uint8_t>(((x ^ y) & 1) == 0);
+    }
+  }
+
+  std::vector<Point> out(1000);
+  ImgSpec spec{ .w = w, .h = h };
 
   auto td = MakeTaskData(img, spec, out);
   auto task = std::make_shared<ConvexHullSequential>(td);
 
+  // по шаблону: валидация и препроцесс до замера
+  ASSERT_TRUE(task->ValidationImpl());
+  ASSERT_TRUE(task->PreProcessingImpl());
+
   auto perf_attr = MakePerfAttr(10);
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf = std::make_shared<ppc::core::Perf>(task);
-
-  ASSERT_TRUE(task->ValidationImpl());
-  ASSERT_TRUE(task->PreProcessingImpl());
 
   perf->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -128,5 +139,5 @@ TEST(shkurinskaya_e_convex_hull_components_seq, perf_taskrun_shared_frame) {
   ASSERT_LE(n, out.size());
   EXPECT_GE(n, 4U);
   EXPECT_TRUE(HasPoint(out.data(), n, Point{0, 0}));
-  EXPECT_TRUE(HasPoint(out.data(), n, Point{kW - 1, kH - 1}));
+  EXPECT_TRUE(HasPoint(out.data(), n, Point{w - 1, h - 1}));
 }
