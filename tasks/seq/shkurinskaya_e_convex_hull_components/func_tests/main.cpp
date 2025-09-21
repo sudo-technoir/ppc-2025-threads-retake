@@ -57,8 +57,7 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_solid_square_5x5) {
   const int h = 5;
   std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 0);
   auto set1 = [&](int x, int y) {
-    const std::size_t idx =
-        (static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + static_cast<std::size_t>(x);
+    const std::size_t idx = (static_cast<std::size_t>(y) * static_cast<std::size_t>(w)) + static_cast<std::size_t>(x);
     img[idx] = 1;
   };
   for (int y = 1; y <= 3; ++y) {
@@ -70,8 +69,8 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_solid_square_5x5) {
   auto hull = RunHull(img, w, h);
 
   const auto contains = [&](Point q) {
-    return std::find_if(hull.begin(), hull.end(),
-                        [&](const Point& p) { return p.x == q.x && p.y == q.y; }) != hull.end();
+    return std::find_if(hull.begin(), hull.end(), [&](const Point& p) { return p.x == q.x && p.y == q.y; }) !=
+           hull.end();
   };
   EXPECT_TRUE(contains({1, 1}));
   EXPECT_TRUE(contains({3, 1}));
@@ -85,23 +84,20 @@ TEST(shkurinskaya_e_convex_hull_components_seq, hull_on_perfect_diagonal_colline
   const int h = 7;
   std::vector<uint8_t> img(static_cast<std::size_t>(w) * static_cast<std::size_t>(h), 0);
   for (int i = 0; i < std::min(w, h); ++i) {
-    const std::size_t idx =
-        (static_cast<std::size_t>(i) * static_cast<std::size_t>(w)) + static_cast<std::size_t>(i);
+    const std::size_t idx = (static_cast<std::size_t>(i) * static_cast<std::size_t>(w)) + static_cast<std::size_t>(i);
     img[idx] = 1;
   }
 
   auto hull = RunHull(img, w, h);
 
   const auto contains = [&](Point q) {
-    return std::find_if(hull.begin(), hull.end(),
-                        [&](const Point& p) { return p.x == q.x && p.y == q.y; }) != hull.end();
+    return std::find_if(hull.begin(), hull.end(), [&](const Point& p) { return p.x == q.x && p.y == q.y; }) !=
+           hull.end();
   };
   EXPECT_TRUE(contains({0, 0}));
   EXPECT_TRUE(contains({w - 1, h - 1}));
 
-  const auto is_inner_diag = [&](const Point& p) {
-    return p.x == p.y && p.x > 0 && p.x < (w - 1);
-  };
+  const auto is_inner_diag = [&](const Point& p) { return p.x == p.y && p.x > 0 && p.x < (w - 1); };
   EXPECT_TRUE(std::none_of(hull.begin(), hull.end(), is_inner_diag));
   EXPECT_EQ(hull.size(), 2U);
 }
