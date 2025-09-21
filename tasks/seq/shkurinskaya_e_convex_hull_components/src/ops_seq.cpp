@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <utility>
 #include <vector>
 
 using namespace shkurinskaya_e_convex_hull_components_seq;
@@ -21,7 +20,7 @@ inline bool LexiLess(const Point& a, const Point& b) noexcept { return (a.x < b.
 
 inline void DedupSortedInPlace(std::vector<Point>& pts) {
   pts.erase(
-      std::unique(pts.begin(), pts.end(), [](const Point& l, const Point& r) { return l.x == r.x && l.y == r.y; }),
+      std::ranges::unique(pts.begin(), pts.end(), [](const Point& l, const Point& r) { return l.x == r.x && l.y == r.y; }),
       pts.end());
 }
 
@@ -33,11 +32,11 @@ inline void AppendWithLeftTurn(std::vector<Point>& chain, const Point& nxt) {
 }
 
 inline std::vector<Point> BuildHullMonotone(std::vector<Point> pts) {
-  if (pts.size() <= 1) return pts;
+  if (pts.size() <= 1) { return pts };
 
-  std::sort(pts.begin(), pts.end(), LexiLess);
+  std::ranges:sort(pts.begin(), pts.end(), LexiLess);
   DedupSortedInPlace(pts);
-  if (pts.size() <= 1) return pts;
+  if (pts.size() <= 1) { return pts };
 
   std::vector<Point> lower, upper;
   lower.reserve(pts.size());
