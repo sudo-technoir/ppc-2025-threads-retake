@@ -1,8 +1,8 @@
+#include "seq/shkurinskaya_e_convex_hull_components/include/ops_seq.hpp"
+
 #include <algorithm>
 #include <cstddef>
 #include <vector>
-
-#include "seq/shkurinskaya_e_convex_hull_components/include/ops_seq.hpp"
 
 using namespace shkurinskaya_e_convex_hull_components_seq;
 
