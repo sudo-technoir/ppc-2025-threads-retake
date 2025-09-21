@@ -116,7 +116,7 @@ bool ConvexHullSequential::ValidationImpl() {
     return false;
   }
   const unsigned int cap = task_data->outputs_count[0];
-  return !(cap > 0 && task_data->outputs[0] == nullptr);
+  return (cap == 0) || (task_data->outputs[0] != nullptr);
 }
 
 bool ConvexHullSequential::PreProcessingImpl() {
