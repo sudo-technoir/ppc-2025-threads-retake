@@ -14,8 +14,8 @@ using shkurinskaya_e_convex_hull_components_seq::ConvexHullSequential;
 using shkurinskaya_e_convex_hull_components_seq::Point;
 
 namespace {
-constexpr int kW = 16384;
-constexpr int kH = 16384;
+constexpr int kW = 32768;
+constexpr int kH = 32768;
 
 const std::vector<uint8_t>& SharedImage() {
   static std::vector<uint8_t> img;
