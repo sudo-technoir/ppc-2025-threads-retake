@@ -22,13 +22,15 @@ const std::vector<uint8_t>& SharedImage() {
   static bool inited = false;
   if (!inited) {
     img.assign(static_cast<std::size_t>(kW) * static_cast<std::size_t>(kH), 0);
+    // верх/низ
     for (int x = 0; x < kW; ++x) {
-      img[static_cast<std::size_t>(0) * kW + x] = 1;
-      img[static_cast<std::size_t>(kH - 1) * kW + x] = 1;
+      img[(static_cast<std::size_t>(0) * static_cast<std::size_t>(kW)) + static_cast<std::size_t>(x)] = 1;
+      img[(static_cast<std::size_t>(kH - 1) * static_cast<std::size_t>(kW)) + static_cast<std::size_t>(x)] = 1;
     }
+    // лево/право
     for (int y = 0; y < kH; ++y) {
-      img[static_cast<std::size_t>(y) * kW + 0] = 1;
-      img[static_cast<std::size_t>(y) * kW + (kW - 1)] = 1;
+      img[(static_cast<std::size_t>(y) * static_cast<std::size_t>(kW)) + static_cast<std::size_t>(0)] = 1;
+      img[(static_cast<std::size_t>(y) * static_cast<std::size_t>(kW)) + static_cast<std::size_t>(kW - 1)] = 1;
     }
     inited = true;
   }
@@ -36,10 +38,15 @@ const std::vector<uint8_t>& SharedImage() {
 }
 
 inline double NowSec() {
-  using clock = std::chrono::high_resolution_clock;
-  static const auto t0 = clock::now();
-  return std::chrono::duration<double>(clock::now() - t0).count();
+  using Clock = std::chrono::high_resolution_clock;
+  static const auto kT0 = Clock::now();
+  return std::chrono::duration<double>(Clock::now() - kT0).count();
 }
+
+struct ImgSpec {
+  int w;
+  int h;
+};
 
 std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
   auto a = std::make_shared<ppc::core::PerfAttr>();
@@ -48,14 +55,15 @@ std::shared_ptr<ppc::core::PerfAttr> MakePerfAttr(int runs) {
   return a;
 }
 
-std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& img, int W, int H,
+std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& img,
+                                                  ImgSpec& spec,  // NOLINT(modernize-pass-by-value)
                                                   std::vector<Point>& out) {
   auto td = std::make_shared<ppc::core::TaskData>();
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<uint8_t*>(img.data())));
+  td->inputs.emplace_back(const_cast<uint8_t*>(img.data()));
   td->inputs_count.emplace_back(static_cast<unsigned int>(img.size()));
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&W)));
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&spec.w));
   td->inputs_count.emplace_back(1);
-  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&H)));
+  td->inputs.emplace_back(reinterpret_cast<uint8_t*>(&spec.h));
   td->inputs_count.emplace_back(1);
 
   td->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
@@ -64,8 +72,11 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<uint8_t>& im
 }
 
 bool HasPoint(const Point* out, unsigned n, Point q) {
-  for (unsigned i = 0; i < n; ++i)
-    if (out[i].x == q.x && out[i].y == q.y) return true;
+  for (unsigned i = 0; i < n; ++i) {
+    if (out[i].x == q.x && out[i].y == q.y) {
+      return true;
+    }
+  }
   return false;
 }
 }  // namespace
@@ -73,8 +84,9 @@ bool HasPoint(const Point* out, unsigned n, Point q) {
 TEST(shkurinskaya_e_convex_hull_components_seq, perf_pipeline_shared_frame) {
   const auto& img = SharedImage();
   std::vector<Point> out(img.size());
+  ImgSpec spec{kW, kH};
 
-  auto td = MakeTaskData(img, kW, kH, out);
+  auto td = MakeTaskData(img, spec, out);
   auto task = std::make_shared<ConvexHullSequential>(td);
 
   auto perf_attr = MakePerfAttr(10);
@@ -97,8 +109,9 @@ TEST(shkurinskaya_e_convex_hull_components_seq, perf_pipeline_shared_frame) {
 TEST(shkurinskaya_e_convex_hull_components_seq, perf_taskrun_shared_frame) {
   const auto& img = SharedImage();
   std::vector<Point> out(img.size());
+  ImgSpec spec{kW, kH};
 
-  auto td = MakeTaskData(img, kW, kH, out);
+  auto td = MakeTaskData(img, spec, out);
   auto task = std::make_shared<ConvexHullSequential>(td);
 
   auto perf_attr = MakePerfAttr(10);
