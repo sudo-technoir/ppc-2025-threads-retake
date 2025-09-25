@@ -1,4 +1,5 @@
 #include "omp/shkurinskaya_e_convex_hull_components/include/ops_omp.hpp"
+
 #include <omp.h>
 
 #include <algorithm>
@@ -160,7 +161,6 @@ bool ConvexHullOmp::PreProcessingImpl() {
   }
   return true;
 }
-
 
 bool ConvexHullOmp::RunImpl() {
   output_hull_ = BuildHullMonotone(input_points_);
