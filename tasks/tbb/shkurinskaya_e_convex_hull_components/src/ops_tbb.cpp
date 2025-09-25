@@ -5,6 +5,8 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_sort.h>
 
+#include <tbb/combinable.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <vector>
@@ -131,7 +133,7 @@ bool ConvexHullTbb::PreProcessingImpl() {
   const int w = *reinterpret_cast<const int*>(task_data->inputs[1]);
   const int h = *reinterpret_cast<const int*>(task_data->inputs[2]);
 
-  tbb::enumerable_thread_specific<std::vector<Point>> tls_bins;
+  tbb::combinable<std::vector<Point>> tls_bins([] { return std::vector<Point>(); });
 
   tbb::parallel_for(tbb::blocked_range<int>(0, h), [&](const tbb::blocked_range<int>& r) {
     auto& local = tls_bins.local();
