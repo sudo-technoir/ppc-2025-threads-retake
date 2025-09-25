@@ -130,14 +130,14 @@ bool ConvexHullOmp::PreProcessingImpl() {
   const int nthreads = omp_get_max_threads();
   std::vector<std::vector<Point>> bins(static_cast<std::size_t>(nthreads));
 
-  #pragma omp parallel
+#pragma omp parallel
   {
     const int tid = omp_get_thread_num();
     std::vector<Point> local;
     const unsigned nt = (nthreads > 0) ? static_cast<unsigned>(nthreads) : 1U;
     local.reserve(((static_cast<std::size_t>(w) * static_cast<std::size_t>(h)) / (8U * nt)) + 64U);
 
-    #pragma omp for schedule(static)
+#pragma omp for schedule(static)
     for (int y = 0; y < h; ++y) {
       const std::size_t off = static_cast<std::size_t>(y) * static_cast<std::size_t>(w);
       for (int x = 0; x < w; ++x) {
