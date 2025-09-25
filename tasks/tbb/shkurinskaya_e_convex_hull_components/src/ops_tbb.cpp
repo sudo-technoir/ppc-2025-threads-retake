@@ -1,5 +1,10 @@
 #include "tbb/shkurinskaya_e_convex_hull_components/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/concurrent_vector.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_sort.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <vector>
