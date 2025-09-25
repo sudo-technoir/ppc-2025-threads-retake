@@ -124,7 +124,7 @@ bool ConvexHullTbb::PreProcessingImpl() {
 
   const auto* img = reinterpret_cast<const unsigned char*>(task_data->inputs[0]);
   const int w = *reinterpret_cast<const int*>(task_data->inputs[1]);
-  const int h = *reinterpret_cast<const int*>(task_data->inputs[2]);  
+  const int h = *reinterpret_cast<const int*>(task_data->inputs[2]);
 
   tbb::enumerable_thread_specific<std::vector<Point>> tls_bins;
 
