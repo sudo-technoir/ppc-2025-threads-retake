@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 using namespace shkurinskaya_e_convex_hull_components_omp;
@@ -143,7 +144,7 @@ bool ConvexHullOmp::PreProcessingImpl() {
       const std::size_t off = static_cast<std::size_t>(y) * static_cast<std::size_t>(w);
       for (int x = 0; x < w; ++x) {
         if (img[off + static_cast<std::size_t>(x)] != 0U) {
-          local.push_back(Point{x, y});
+          local.push_back(Point{.x = x, .y = y});
         }
       }
     }
