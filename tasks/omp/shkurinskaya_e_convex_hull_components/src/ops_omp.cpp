@@ -1,4 +1,5 @@
 #include "omp/shkurinskaya_e_convex_hull_components/include/ops_omp.hpp"
+#include <omp.h>
 
 #include <algorithm>
 #include <cstddef>
