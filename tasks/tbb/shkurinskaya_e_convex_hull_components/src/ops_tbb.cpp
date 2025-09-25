@@ -4,7 +4,6 @@
 #include <oneapi/tbb/concurrent_vector.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_sort.h>
-
 #include <tbb/combinable.h>
 
 #include <algorithm>
