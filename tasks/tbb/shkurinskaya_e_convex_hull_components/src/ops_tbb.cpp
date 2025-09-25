@@ -122,14 +122,14 @@ bool ConvexHullTbb::ValidationImpl() {
 bool ConvexHullTbb::PreProcessingImpl() {
   input_points_.clear();
 
-  const auto *img = reinterpret_cast<const unsigned char *>(task_data->inputs[0]);
-  const int w = *reinterpret_cast<const int *>(task_data->inputs[1]);
-  const int h = *reinterpret_cast<const int *>(task_data->inputs[2]);
+  const auto* img = reinterpret_cast<const unsigned char*>(task_data->inputs[0]);
+  const int w = *reinterpret_cast<const int*>(task_data->inputs[1]);
+  const int h = *reinterpret_cast<const int*>(task_data->inputs[2]);  
 
   tbb::enumerable_thread_specific<std::vector<Point>> tls_bins;
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, h), [&](const tbb::blocked_range<int> &r) {
-    auto &local = tls_bins.local();
+  tbb::parallel_for(tbb::blocked_range<int>(0, h), [&](const tbb::blocked_range<int>& r) {
+    auto& local = tls_bins.local();
     const int rows = r.end() - r.begin();
     const std::size_t estimate = (static_cast<std::size_t>(w) * static_cast<std::size_t>(rows)) / 8U + 64U;
     local.reserve(local.size() + estimate);
