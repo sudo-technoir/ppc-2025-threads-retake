@@ -1,21 +1,17 @@
 #include "tbb/shkurinskaya_e_convex_hull_components/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/concurrent_vector.h>
+#include <oneapi/tbb/combinable.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_sort.h>
-#include <tbb/combinable.h>
 
 #include <algorithm>
 #include <cstddef>
-#include <utility>
 #include <vector>
 
 using namespace shkurinskaya_e_convex_hull_components_tbb;
 
 namespace {
 
-// Удвоенная ориентированная площадь (левый поворот > 0)
 inline long long TwiceOrientedArea(const Point& a, const Point& b, const Point& c) noexcept {
   const long long abx = static_cast<long long>(b.x) - static_cast<long long>(a.x);
   const long long aby = static_cast<long long>(b.y) - static_cast<long long>(a.y);
@@ -138,7 +134,7 @@ bool ConvexHullTbb::PreProcessingImpl() {
   tbb::parallel_for(tbb::blocked_range<int>(0, h), [&](const tbb::blocked_range<int>& r) {
     auto& local = tls_bins.local();
     const int rows = r.end() - r.begin();
-    const std::size_t estimate = (static_cast<std::size_t>(w) * static_cast<std::size_t>(rows)) / 8U + 64U;
+    const std::size_t estimate = ((static_cast<std::size_t>(w) * static_cast<std::size_t>(rows)) / 8U) + 64U;
     local.reserve(local.size() + estimate);
     for (int y = r.begin(); y < r.end(); ++y) {
       const std::size_t off = static_cast<std::size_t>(y) * static_cast<std::size_t>(w);
