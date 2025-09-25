@@ -149,14 +149,15 @@ bool ConvexHullTbb::PreProcessingImpl() {
     }
   });
 
-  std::size_t total = 0;
-  for (const auto& bin : tls_bins) {
-    total += bin.size();
-  }
-  input_points_.reserve(total);
-  for (auto& bin : tls_bins) {
-    input_points_.insert(input_points_.end(), bin.begin(), bin.end());
-  }
+std::size_t total = 0;
+tls_bins.combine_each([&](const std::vector<Point>& bin) {
+  total += bin.size();
+});
+
+input_points_.reserve(total);
+tls_bins.combine_each([&](const std::vector<Point>& bin) {
+  input_points_.insert(input_points_.end(), bin.begin(), bin.end());
+});
 
   return true;
 }
